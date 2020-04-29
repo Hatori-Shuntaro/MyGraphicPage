@@ -6,8 +6,14 @@ body {
     background-color: black;
 }
 
+#title-canvas {
+    vertical-align: bottom;
+}
+
 .header-inner {
-    /* background: #bad7f5; */
+    background: #bad7f5;
+    padding: 0;
+    margin: 0;
 }
 
 .nav-inner {

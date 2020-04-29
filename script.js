@@ -3,21 +3,24 @@ let scene;
 let renderer;
 
 function init() {
-    var stats = initStats();
-
     // レンダラーを作成
     renderer = new THREE.WebGLRenderer({
         canvas: document.querySelector('#title-canvas')
     });
+
     renderer.setClearColor(new THREE.Color(0x111111));
 
     // シーンを作成
     scene = new THREE.Scene();
 
+    // 透視投影カメラを作成
+    camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight / 4, 0.1, 1000);
+    camera.position.z = 300;
+
     // 平行投影カメラを作成
-    camera = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 16, window.innerHeight / -16, -200, 500);
-    camera.position.set(0, 0, 100);
-    camera.lookAt(scene.position);
+    // camera = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 16, window.innerHeight / -16, -200, 500);
+    // camera.position.set(0, 0, 100);
+    // camera.lookAt(scene.position);
 
     // AmbientLightの追加
     const ambiColor = '#ee82ee'; // violet
@@ -36,25 +39,26 @@ function init() {
     scene.add(rightPointLight);
 
     // 球体を3個作成
-    const leftGeometry = new THREE.SphereGeometry(25, 30, 30);
+    const leftGeometry = new THREE.SphereGeometry(60, 30, 30);
     const leftMaterial = new THREE.MeshStandardMaterial({ color: 0xff6347 });
     const leftMesh = new THREE.Mesh(leftGeometry, leftMaterial);
-    leftMesh.position.set(-100, 0, 0);
+    leftMesh.position.set(-200, 0, 0);
     scene.add(leftMesh);
 
-    const middleGeometry = new THREE.SphereGeometry(25, 30, 30);
+    const middleGeometry = new THREE.SphereGeometry(60, 30, 30);
     const middleMaterial = new THREE.MeshStandardMaterial({ color: 0x4169e1 });
     const middleMesh = new THREE.Mesh(middleGeometry, middleMaterial);
     scene.add(middleMesh);
 
-    const rightGeometry = new THREE.SphereGeometry(25, 30, 30);
+    const rightGeometry = new THREE.SphereGeometry(60, 30, 30);
     const rightMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 });
     const rightMesh = new THREE.Mesh(rightGeometry, rightMaterial);
-    rightMesh.position.set(100, 0, 0);
+    rightMesh.position.set(200, 0, 0);
     scene.add(rightMesh);
 
     // 地面を作成
-    const plane = new THREE.GridHelper(500, 10, 0xff00ff, 0xff00ff);
+    const plane = new THREE.GridHelper(1000, 70, 0xff00ff, 0xff00ff);
+    plane.position.set(0, 0, -20);
     plane.rotation.set(Math.PI / 2, 0, 0);
     scene.add(plane);
 
@@ -79,21 +83,10 @@ function init() {
     render();
     // ループイベント
     function render() {
-        stats.update();
-
         let delta = clock.getDelta();
 
-        // renderer.render(scene, camera); // レンダリング
         requestAnimationFrame(render);
         composer.render(delta);
-    }
-
-    function initStats() {
-        var stats = new Stats();
-
-        stats.setMode(0); // 0: fps, 1: ms
-
-        return stats;
     }
 }
 
@@ -106,19 +99,21 @@ function onResize() {
         // 画面が小さい場合
         width = window.innerWidth;
         height = window.innerHeight / 5;
-        camera.zoom = 0.7;
+        camera.fov = 45;
+        // camera.zoom = 0.8;
     } else {
         // デスクトップなど大きい場合
         width = window.innerWidth;
         height = window.innerHeight / 4;
-        camera.zoom = 2.0;
+        camera.fov = 25;
+        // camera.zoom = 2.0;
     }
 
     // レンダラーのサイズを調整する
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(width, height);
-
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
 }
 
 window.onload = init;
