@@ -1,19 +1,18 @@
-// ページの読み込みを待つ
-window.addEventListener('load', init);
- 
+let camera;
+let scene;
+let renderer;
+
 function init() {
-    // 現在のcanvasの大きさをセット
-    lastWidth = window.innerWidth;
-    lastHeight = window.innerHeight / 4;
+    var stats = initStats();
 
     // レンダラーを作成
-    const renderer = new THREE.WebGLRenderer({
+    renderer = new THREE.WebGLRenderer({
         canvas: document.querySelector('#title-canvas')
     });
     renderer.setClearColor(new THREE.Color(0x111111));
 
     // シーンを作成
-    const scene = new THREE.Scene();
+    scene = new THREE.Scene();
 
     // 平行投影カメラを作成
     camera = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 16, window.innerHeight / -16, -200, 500);
@@ -21,15 +20,15 @@ function init() {
     camera.lookAt(scene.position);
 
     // AmbientLightの追加
-    const ambiColor = '#ee82ee';  // violet
+    const ambiColor = '#ee82ee'; // violet
     const ambientLight = new THREE.AmbientLight(ambiColor);
     scene.add(ambientLight);
 
     // PointLightを左右に配置
-    const pointLightColor = '#00ffff';  // cyan
+    const pointLightColor = '#00ffff'; // cyan
     const leftPointLight = new THREE.PointLight(pointLightColor, 0.5, 0, 1);
     leftPointLight.position.set(-300, 0, 0);
-    
+
     const rightPointLight = new THREE.PointLight(pointLightColor, 0.5, 0, 1);
     rightPointLight.position.set(300, 0, 0);
 
@@ -38,18 +37,18 @@ function init() {
 
     // 球体を3個作成
     const leftGeometry = new THREE.SphereGeometry(25, 30, 30);
-    const leftMaterial = new THREE.MeshStandardMaterial({color: 0xff6347});
+    const leftMaterial = new THREE.MeshStandardMaterial({ color: 0xff6347 });
     const leftMesh = new THREE.Mesh(leftGeometry, leftMaterial);
     leftMesh.position.set(-100, 0, 0);
     scene.add(leftMesh);
 
     const middleGeometry = new THREE.SphereGeometry(25, 30, 30);
-    const middleMaterial = new THREE.MeshStandardMaterial({color: 0x4169e1});
+    const middleMaterial = new THREE.MeshStandardMaterial({ color: 0x4169e1 });
     const middleMesh = new THREE.Mesh(middleGeometry, middleMaterial);
     scene.add(middleMesh);
 
     const rightGeometry = new THREE.SphereGeometry(25, 30, 30);
-    const rightMaterial = new THREE.MeshStandardMaterial({color: 0x228b22});
+    const rightMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 });
     const rightMesh = new THREE.Mesh(rightGeometry, rightMaterial);
     rightMesh.position.set(100, 0, 0);
     scene.add(rightMesh);
@@ -74,43 +73,53 @@ function init() {
 
     let clock = new THREE.Clock();
 
-    tick();
+    // 初期化のために実行
+    onResize();
+
+    render();
     // ループイベント
-    function tick() {
+    function render() {
+        stats.update();
+
         let delta = clock.getDelta();
 
         // renderer.render(scene, camera); // レンダリング
-        requestAnimationFrame(tick);
+        requestAnimationFrame(render);
         composer.render(delta);
     }
 
-    // 初期化のために実行
-    onResize();
-    // リサイズイベント発生時に実行
-    window.addEventListener('resize', onResize);
+    function initStats() {
+        var stats = new Stats();
 
-    function onResize() {
-        let width;
-        let height;
+        stats.setMode(0); // 0: fps, 1: ms
 
-        // スマホなどの小さい画面で球体をすべて表示するためにズームを調整する
-        if (window.innerWidth < 768) {
-            // 画面が小さい場合
-            width = window.innerWidth;
-            height = window.innerHeight / 5;
-            camera.zoom = 0.7;
-        }
-        else {
-            // デスクトップなど大きい場合
-            width = window.innerWidth;
-            height = window.innerHeight / 4;
-            camera.zoom = 2.0;
-        }
-
-        // レンダラーのサイズを調整する
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(width, height);
-
-        camera.updateProjectionMatrix();
+        return stats;
     }
 }
+
+function onResize() {
+    let width;
+    let height;
+
+    // スマホなどの小さい画面で球体をすべて表示するためにズームを調整する
+    if (window.innerWidth < 768) {
+        // 画面が小さい場合
+        width = window.innerWidth;
+        height = window.innerHeight / 5;
+        camera.zoom = 0.7;
+    } else {
+        // デスクトップなど大きい場合
+        width = window.innerWidth;
+        height = window.innerHeight / 4;
+        camera.zoom = 2.0;
+    }
+
+    // レンダラーのサイズを調整する
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(width, height);
+
+    camera.updateProjectionMatrix();
+}
+
+window.onload = init;
+window.addEventListener('resize', onResize, false);
