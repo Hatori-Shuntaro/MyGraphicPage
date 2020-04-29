@@ -2,6 +2,10 @@
 window.addEventListener('load', init);
  
 function init() {
+    // 現在のcanvasの大きさをセット
+    lastWidth = window.innerWidth;
+    lastHeight = window.innerHeight / 4;
+
     // レンダラーを作成
     const renderer = new THREE.WebGLRenderer({
         canvas: document.querySelector('#title-canvas')
@@ -13,8 +17,6 @@ function init() {
 
     // 平行投影カメラを作成
     camera = new THREE.OrthographicCamera(window.innerWidth / -4, window.innerWidth / 4, window.innerHeight / 16, window.innerHeight / -16, -200, 500);
-    // 球体が小さいのでズームインする
-    camera.zoom = 1.5;
     camera.position.set(0, 0, 100);
     camera.lookAt(scene.position);
 
@@ -88,16 +90,27 @@ function init() {
     window.addEventListener('resize', onResize);
 
     function onResize() {
-        // サイズを取得
-        const width = window.innerWidth;
-        const height = window.innerHeight / 4;
+        let width;
+        let height;
+
+        // スマホなどの小さい画面で球体をすべて表示するためにズームを調整する
+        if (window.innerWidth < 768) {
+            // 画面が小さい場合
+            width = window.innerWidth;
+            height = window.innerHeight / 5;
+            camera.zoom = 0.7;
+        }
+        else {
+            // デスクトップなど大きい場合
+            width = window.innerWidth;
+            height = window.innerHeight / 4;
+            camera.zoom = 2.0;
+        }
 
         // レンダラーのサイズを調整する
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(width, height);
 
-        // カメラのアスペクト比を正す
-        camera.aspect = width / height;
         camera.updateProjectionMatrix();
     }
 }
